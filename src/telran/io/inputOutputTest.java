@@ -3,8 +3,11 @@ package telran.io;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecurityPermission;
+
 import org.junit.jupiter.api.Test;
 
 class inputOutputTest {
@@ -29,13 +32,22 @@ class inputOutputTest {
 		// display content dir by using method walk of the class Files
 		// apply the method walk of the class Files and try to skip the files not having
 		// permission of reading
-		if (!Files.isDirectory(pathParent)) {
-			throw new IllegalArgumentException("Path must be a directory");
+		pathParent = pathParent.toAbsolutePath().normalize();
+		if(!Files.exists(pathParent)) {
+			throw new IllegalArgumentException("doesn`t exist");
 		}
-		int level = pathParent.toAbsolutePath().normalize().getNameCount();
+		if (!Files.isDirectory(pathParent)) {
+			throw new IllegalArgumentException("no directory");
+		}
+		int level = pathParent.getNameCount();
 		Files.walk(pathParent, maxDepth)
-		 .map(p -> p.toAbsolutePath().normalize())
-		 .filter(p -> Files.isReadable(p))
+		.filter(p -> {
+			try {
+				return !Files.isHidden(p);
+			} catch (IOException e) {
+				return false;
+			}
+		})
 		 .forEach(p -> System.out.printf("%s%s -> %s\n", " ".repeat(p.getNameCount() - level),
 						p.getName(p.getNameCount() - 1), Files.isDirectory(p) ? "dir" : "file"));
 	}
