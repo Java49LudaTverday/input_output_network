@@ -1,14 +1,12 @@
 package telran.io;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CopyPerformanceAppl {
-	private static final int N_RUNS = 2;
+	private static final int N_RUNS = 4;
 	private static String pathToSource = "bigFile";
-	private static String pathToDestination = "new_bigFile";
-	
+	private static String pathToDestination = "new_bigFile";	
 	private static int[] bufferLength = {10_000, 100_000, 1_000_000, 100_000_000};
 
 	public static void main(String[] args) {
