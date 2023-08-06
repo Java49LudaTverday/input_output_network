@@ -14,41 +14,19 @@ public class CopyFileStreams implements CopyFile {
 
 	@Override
 	public void copy(String pathToSource, String pathToDestination)  {
-		byte[] buffer = new byte[bufferLength];
-		try {
-			int length = 0;
+		
+			
 			try (InputStream input = new FileInputStream(pathToSource);
 					OutputStream output = new FileOutputStream(pathToDestination)) {
+				int length = 0;
+				byte[] buffer = new byte[bufferLength];
 				while ((length = input.read(buffer)) > 0) {
 					output.write(buffer);
 				}
-			}
+			
 			} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}	
-
-//	private void readFrom(String nameFile, byte[] buffer) throws Exception {
-//		long totalSize = 0;
-//		int length = 0;
-//		try (InputStream input = new FileInputStream(nameFile)) {
-//			while ((length = input.read(buffer)) > 0) {
-//				totalSize += length;
-//			}
-//			input.close();
-//		}
-//	}
-
-//	private void writeTo(String nameFile, byte[] buffer) throws Exception {
-//		try (OutputStream output = new FileOutputStream(nameFile)) {
-//			StringBuilder builder = new StringBuilder(buffer.length);
-//			for (int i = 0; i < buffer.length; i++) {
-//				builder.append(buffer[i]);
-//			}
-//			output.write(builder.toString().getBytes());
-//			output.close();
-//		}
-
-	
 
 }

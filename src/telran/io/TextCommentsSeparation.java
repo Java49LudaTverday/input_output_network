@@ -10,10 +10,11 @@ public class TextCommentsSeparation {
 		} else {			
 			try (BufferedReader reader = getBufferedReader(args[0]);
 					PrintWriter writerText = getWriter(args[1]);
-					PrintWriter writerComments = getWriter(args[2])
-				){				
+					PrintWriter writerComments = getWriter(args[2]))
+				{				
 				reader.lines()
 				.forEach(line -> getSourceWriter(writerText, writerComments, line).println(line));
+				
 			} catch (FileNotFoundException e) {				
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -25,7 +26,7 @@ public class TextCommentsSeparation {
 
 	private static PrintWriter getSourceWriter(PrintWriter writerText,
 			PrintWriter writerComments, String line) {
-		return line.strip().startsWith("//") ? writerComments : writerText;
+		return line.trim().startsWith("//") ? writerComments : writerText;
 	}
 	
 	private static BufferedReader getBufferedReader(String source) throws FileNotFoundException {
@@ -35,5 +36,6 @@ public class TextCommentsSeparation {
 		return new  PrintWriter(source);
 	}
 	
-//String regexComm = "\s*\t*(//).*";
+//String regexComm = "(\s*\t*)*(//).*";
+	
 }
