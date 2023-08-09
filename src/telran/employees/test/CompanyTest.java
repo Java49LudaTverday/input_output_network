@@ -31,9 +31,9 @@ private static final String DEP1 = "dep1";
 private static final String DEP2 = "dep2";
 private static final String DEP3 = "dep3";
 
-private static final int SALARY1 = 4_999;
-private static final int SALARY2 = 5_001;
-private static final int SALARY3 = 10_000;
+private static final int SALARY1 = 10000;
+private static final int SALARY2 = 5000;
+private static final int SALARY3 = 15000;
 private static final int SALARY4 = 9_999;
 
 private static final int YEAR1 = 2000;
@@ -51,7 +51,7 @@ private static final int INTERVAL = 5000;
 Employee empl1 = new Employee(ID1, "name", DEP1, SALARY1, DATE1);
 Employee empl2 = new Employee(ID2, "name", DEP2, SALARY2, DATE2);
 Employee empl3 = new Employee(ID3, "name", DEP1, SALARY1, DATE1);
-Employee empl4 = new Employee(ID4, "name", DEP2, SALARY4, DATE2);
+Employee empl4 = new Employee(ID4, "name", DEP2, SALARY2, DATE2);
 Employee empl5 = new Employee(ID5, "name", DEP3, SALARY3, DATE3);
 	
 Employee[] employees = {empl1, empl2, empl3, empl4, empl5};
@@ -93,22 +93,30 @@ Company company;
 
 	@Test
 	void testGetDepartmentSalaryDistribution() {
-		DepartmentSalary[] expected = {new DepartmentSalary(DEP1, 4_999),
-				new DepartmentSalary(DEP2, 7_500), new DepartmentSalary(DEP3, 10_000)};
-		List<DepartmentSalary> companyDepSalary = company.getDepartmentSalaryDistribution();
-		companyDepSalary = companyDepSalary.stream().collect(Collectors.toCollection(ArrayList::new));
-		companyDepSalary.sort(Comparator.comparing(DepartmentSalary::department));
-		//(ds1,ds2)-> ds1.department().compareTo(ds2.department())
-		assertArrayEquals(expected, companyDepSalary.toArray(DepartmentSalary[]::new));
+		DepartmentSalary [] expected = {
+				new DepartmentSalary(DEP2, SALARY2),
+				new DepartmentSalary(DEP1, SALARY1),
+				new DepartmentSalary(DEP3, SALARY3)
+			};
+			DepartmentSalary [] actual = company.getDepartmentSalaryDistribution()
+					.stream().sorted((ds1, ds2) -> Double.compare(ds1.salary(), ds2.salary())).
+					toArray(DepartmentSalary[]::new);
+			assertArrayEquals(expected, actual);
 	}
 
 	@Test
 	void testGetSalaryDistribution() {
-		List<SalaryDistribution> companySalaryDistr = 
-				 company.getSalaryDistribution(INTERVAL);
-		assertEquals(3, companySalaryDistr.size());
-		assertEquals(companySalaryDistr.get(0).minSalary(), SALARY1);
-		assertEquals(companySalaryDistr.get(companySalaryDistr.size()-1).maxSalary(),SALARY3 );
+		int interval = 5000;
+		SalaryDistribution[] expected = {
+				new SalaryDistribution(SALARY2, SALARY2 + interval - 1, 2),
+				new SalaryDistribution(SALARY1, SALARY1 + interval - 1, 3),
+				new SalaryDistribution(SALARY3, SALARY3 + interval - 1, 1),
+		};
+		company.addEmployee(new Employee(ID_NOT_EXIST, DEP2, DEP2, 13000,  DATE1));
+		SalaryDistribution[] actual =
+				company.getSalaryDistribution(interval)
+				.toArray(SalaryDistribution[]::new);
+		assertArrayEquals(expected, actual);
 	}
 
 	@Test

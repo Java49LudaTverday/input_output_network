@@ -1,14 +1,7 @@
 package itelran.employees.service;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
+import java.util.*;
 import itelran.employees.dto.DepartmentSalary;
 import itelran.employees.dto.Employee;
 import itelran.employees.dto.SalaryDistribution;
@@ -54,48 +47,14 @@ public class CompanyImpl implements Company {
 	@Override
 	public List<SalaryDistribution> getSalaryDistribution(int interval) {
 
-		return employees.values().stream().collect(Collectors.groupingBy(empl -> empl.salary() / interval))
+		return employees.values().stream()
+				.collect(Collectors.groupingBy(e -> e.salary()/interval,
+						Collectors.counting()))
 				.entrySet().stream()
-				.map(e -> new SalaryDistribution(getMinSalary(e), getMaxSalary(e), e.getValue().size()))
-				.toList();
-
-	}
-
-	private int getMaxSalary(Entry<Integer, List<Employee>> e) {
-		return e.getValue().stream()
-				.mapToInt(en -> en.salary()).max().orElseThrow();
-	}
-
-	private int getMinSalary(Entry<Integer, List<Employee>> e) {
-		return e.getValue().stream()
-				.mapToInt(en -> en.salary()).min().orElseThrow();
-	}
-
-	@Override
-	public void restore(String filePath) {
-		try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath))) {
-			while (true) {
-				addEmployee((Employee) input.readObject());
-			}
-		} catch (Exception ex) {
-			new RuntimeException(ex.toString());
-		}
-
-	}
-
-	@Override
-	public void save(String filePath) {
-		try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath))) {
-			employees.values().stream().forEach(empl -> {
-				try {
-					output.writeObject(empl);
-				} catch (IOException ex) {
-					new RuntimeException(ex.toString());
-				}
-			});
-		} catch (IOException ex) {
-			new RuntimeException(ex.toString());
-		}
-	}
+				.map(e -> new SalaryDistribution(e.getKey() * interval,
+						e.getKey() * interval + interval - 1, e.getValue().intValue()))
+				.sorted((sd1, sd2) -> Integer.compare(sd1.minSalary(), sd2.minSalary()))
+						.toList();
+	}	
 
 }
