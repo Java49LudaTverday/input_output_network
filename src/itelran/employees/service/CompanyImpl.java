@@ -122,22 +122,22 @@ public class CompanyImpl implements Company {
 	@Override
 	public List<Employee> getEmployeesByDepartment(String department) {
 
-		return employeesDep.get(department)
-				.stream().sorted(Comparator.comparing(Employee::id))
-				.toList();
+		return getByCategory(employeesDep, department, Comparator.comparing(Employee::id) );
 	}
 
 	@Override
 	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
 
-		return getByCategory(employeesSalary, salaryFrom, salaryTo, Comparator.comparing(Employee::id) );
+		return getByCategory(employeesSalary, salaryFrom,
+				salaryTo, Comparator.comparing(Employee::id));
 	}
 
 	@Override
 	public List<Employee> getEmployeesByAge(int ageFrom, int ageTo) {
 		LocalDate from = getLocalDate(ageFrom);
 		LocalDate to = getLocalDate(ageTo);
-		return getByCategory(employeesAge, from, to, Comparator.comparing(Employee::id));
+		return getByCategory(employeesAge, from, 
+				to, Comparator.comparing(Employee::id));
 
 	}
 
@@ -151,19 +151,21 @@ public class CompanyImpl implements Company {
 	@Override
 	public Employee updateSalary(long id, int newSalary) {
 		Employee res = employees.get(id);
-		Employee emplUpdated = new Employee(res.id(), res.name(),res.department(), newSalary, res.birthDate());
-     	removeEmployee(id);		
-		addEmployee(emplUpdated);
+		Employee emplUpdated = new Employee(res.id(), res.name(), res.department(), newSalary, res.birthDate());
+		updateEmployee(id, emplUpdated);
 		return res;
 	}
 
 	@Override
 	public Employee updateDepartment(long id, String newDepartment) {
 		Employee res = employees.get(id);
-		removeEmployee(res.id());
-		Employee emplUpdated = new Employee(res.id(), res.name(),newDepartment, res.salary(), res.birthDate());
-		addEmployee(emplUpdated);
+		Employee emplUpdated = new Employee(res.id(), res.name(), newDepartment, res.salary(), res.birthDate());
+		updateEmployee(id, emplUpdated);
 		return res;
 	}
 
+	private void updateEmployee(long id, Employee emplUpdated) {
+		removeEmployee(id);
+		addEmployee(emplUpdated);
+	}
 }

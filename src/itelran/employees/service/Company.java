@@ -46,13 +46,18 @@ public interface Company {
 	Employee updateSalary(long id, int newSalary);//returns employee before updating
 	Employee updateDepartment(long id, String newDepartment);
 	
-	 default <T, K> List<T> getByCategory(TreeMap<K,Collection<T>> map,
+	default <T, K> List<T> getByCategory(Map<K,Collection<T>> map, K category, Comparator<T> comp ) {		
+		 return map.get(category).stream()
+			.sorted(comp).toList();
+	 }
+	
+	default <T, K> List<T> getByCategory(TreeMap<K,Collection<T>> map,
 			            K from, K to, Comparator<T> comp) {
 		return  map.subMap(from, true, to, true).values().stream()
 				 .flatMap(col -> col.stream().sorted(comp))
-				 .toList();
-					
+				 .toList();					
 	}
+	 
 	
 }
 
