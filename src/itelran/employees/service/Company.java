@@ -39,7 +39,7 @@ public interface Company {
 		//output.writeObject(new ArrayList<>(employees.values());
 	};//writs to file// gets list of employee all
 	//interval = 1000;[10000-11000];
-	
+	//new methods from homework #36
 	List<Employee> getEmployeesByDepartment(String department);
 	List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo);
 	List<Employee> getEmployeesByAge(int ageFrom, int ageTo);

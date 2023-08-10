@@ -5,11 +5,15 @@ import java.util.*;
 import itelran.employees.dto.DepartmentSalary;
 import itelran.employees.dto.Employee;
 import itelran.employees.dto.SalaryDistribution;
+import java.time.LocalDate;
+import java.time.Month;
 
 public class CompanyImpl implements Company {
 	// LinkedHashMap - in ordered view
 	LinkedHashMap<Long, Employee> employees = new LinkedHashMap<>();
 	TreeMap<Integer, Collection<Employee>> employeesSalary = new TreeMap<>();
+	TreeMap<LocalDate, Collection<Employee>> employeesAge = new TreeMap<>(Comparator.reverseOrder());
+	HashMap<String, Collection<Employee>> employeesDep = new HashMap<>();
 
 	@Override
 	public boolean addEmployee(Employee empl) {
@@ -20,8 +24,22 @@ public class CompanyImpl implements Company {
 		if (emplRes == null) {
 			res = true;
 			addEmployeeSalary(empl);
+			addEmployeesAge(empl);
+			addEmployeesDep(empl);
 		}
 		return res;
+	}
+
+	private void addEmployeesDep(Employee empl) {
+		String dep = empl.department();
+		employeesDep.computeIfAbsent(dep, k -> new HashSet<>()).add(empl);
+
+	}
+
+	private void addEmployeesAge(Employee empl) {
+		LocalDate birthDate = empl.birthDate();
+		employeesAge.computeIfAbsent(birthDate, k -> new HashSet<>()).add(empl);
+
 	}
 
 	private void addEmployeeSalary(Employee empl) {
@@ -29,25 +47,44 @@ public class CompanyImpl implements Company {
 		// if mapping no -> add;
 		// if there is one -> no mapping;
 		int salary = empl.salary();
-		employeesSalary.computeIfAbsent(salary, k -> new HashSet<>())
-		.add(empl);
+		employeesSalary.computeIfAbsent(salary, k -> new HashSet<>()).add(empl);
 
 	}
 
 	@Override
 	public Employee removeEmployee(long id) {
-		Employee res = employees.remove(id);
-		if (res != null) {
-			removeEmployeeSalary(res);
+		Employee empl = employees.remove(id);
+		if (empl != null) {
+			removeEmployeeSalary(empl);
+			removeEmployeeAge(empl);
+			removeEmployeeDep(empl);
 		}
-		return res;
+		return empl;
+	}
+
+	private void removeEmployeeDep(Employee empl) {
+		String dep = empl.department();
+		Collection<Employee> employeesCol = employeesDep.get(dep);
+		employeesCol.remove(empl);
+		if (employeesCol.isEmpty()) {
+			employeesDep.remove(employeesCol);
+		}
+	}
+
+	private void removeEmployeeAge(Employee empl) {
+		LocalDate birthDate = empl.birthDate();
+		Collection<Employee> employeesCol = employeesAge.get(birthDate);
+		employeesCol.remove(empl);
+		if (employeesCol.isEmpty()) {
+			employeesAge.remove(birthDate);
+		}
 	}
 
 	private void removeEmployeeSalary(Employee empl) {
 		int salary = empl.salary();
 		Collection<Employee> employeesCol = employeesSalary.get(salary);
 		employeesCol.remove(empl);
-		if(employeesCol.isEmpty()) {
+		if (employeesCol.isEmpty()) {
 			employeesSalary.remove(salary);
 		}
 	}
@@ -84,24 +121,33 @@ public class CompanyImpl implements Company {
 
 	@Override
 	public List<Employee> getEmployeesByDepartment(String department) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
-		
-		return employeesSalary.subMap(salaryFrom, true, salaryTo, true)
-				.values().stream()
-				//.flatMap(Collection::stream)
-				.flatMap(col -> col.stream().sorted(Comparator.comparing(Employee::id)))
+		return employeesDep.get(department)
+				.stream().sorted(Comparator.comparing(Employee::id))
 				.toList();
 	}
 
 	@Override
+	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
+
+		return employeesSalary.subMap(salaryFrom, true, salaryTo, true).values().stream()
+				// .flatMap(Collection::stream)
+				.flatMap(col -> col.stream().sorted(Comparator.comparing(Employee::id))).toList();
+	}
+
+	@Override
 	public List<Employee> getEmployeesByAge(int ageFrom, int ageTo) {
-		// TODO Auto-generated method stub
-		return null;
+
+		return employeesAge.subMap(getLocalDate(ageFrom), true, getLocalDate(ageTo), true).values().stream()
+				.flatMap(col -> col.stream().sorted(Comparator.comparing(Employee::id))).toList();
+
+	}
+
+	private LocalDate getLocalDate(int ageDestination) {
+		int year = LocalDate.now().getYear();
+		Month monthNow = LocalDate.now().getMonth();
+		int dayOfMonth = LocalDate.now().getDayOfMonth();
+		return LocalDate.of(year - ageDestination, monthNow, dayOfMonth);
 	}
 
 	@Override

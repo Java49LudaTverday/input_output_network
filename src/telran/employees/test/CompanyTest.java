@@ -132,5 +132,45 @@ Company company;
 	void testSave() {
 		company.save(TEST_DATA);
 	}
+	
+	@Test
+	void getEmployeesBySalaryTest() {
+		int salaryFrom = 5000;
+		int salaryTo = 10000;
+		List<Employee> expected = new ArrayList<>();
+		expected.add(empl2);
+		expected.add(empl4);
+		expected.add(empl1);
+		expected.add(empl3);
+		List<Employee> actualy = company.getEmployeesBySalary(salaryFrom, salaryTo);
+		assertArrayEquals(expected.toArray(Employee[]::new), actualy.toArray(Employee[]::new));
+	}
+	@Test
+	void getEmployeesByAgeTest() {
+		int ageFrom = 18;
+		int ageTo = 24;
+		List<Employee> expected = new ArrayList<>();
+		expected.add(empl5);
+		expected.add(empl1);
+		expected.add(empl3);
+		List<Employee> actual = company.getEmployeesByAge(ageFrom, ageTo);
+		assertArrayEquals (expected.toArray(Employee[]::new), actual.toArray(Employee[]::new));
+		int ageFrom_30 = 30;
+		int ageTo_40 = 40;
+		List<Employee> expected1 = new ArrayList<>();
+		expected1.add(empl2);
+		expected1.add(empl4);
+		List<Employee> actual1 = company.getEmployeesByAge(ageFrom_30, ageTo_40);
+		assertArrayEquals (expected1.toArray(Employee[]::new), actual1.toArray(Employee[]::new));
+	}
+	@Test
+	void getEmployeesByDepTest() {
+		String dep = DEP1;
+		List<Employee> expected = new ArrayList<>();
+		expected.add(empl1);
+		expected.add(empl3);
+		List<Employee> actual = company.getEmployeesByDepartment(dep);
+		assertArrayEquals (expected.toArray(Employee[]::new), actual.toArray(Employee[]::new));
+	}
 
 }
