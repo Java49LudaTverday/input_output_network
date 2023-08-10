@@ -172,5 +172,19 @@ Company company;
 		List<Employee> actual = company.getEmployeesByDepartment(dep);
 		assertArrayEquals (expected.toArray(Employee[]::new), actual.toArray(Employee[]::new));
 	}
+	@Test
+	void updateSalaryTest() {
+		int newSalary = 9000;
+		Employee beforUpd = company.updateSalary(ID2, newSalary);
+		assertEquals(beforUpd, empl2);
+		assertEquals(newSalary, company.getEmployee(ID2).salary());
+	}
+	@Test 
+	void updateDepartmentTest() {
+		String newDep = DEP2;
+		Employee beforUpd = company.updateDepartment(ID1, newDep);
+		assertEquals(beforUpd, empl1);
+		assertEquals(newDep, company.getEmployee(ID1).department());
+	}
 
 }
