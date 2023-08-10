@@ -130,16 +130,14 @@ public class CompanyImpl implements Company {
 	@Override
 	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
 
-		return employeesSalary.subMap(salaryFrom, true, salaryTo, true).values().stream()
-				// .flatMap(Collection::stream)
-				.flatMap(col -> col.stream().sorted(Comparator.comparing(Employee::id))).toList();
+		return getByCategory(employeesSalary, salaryFrom, salaryTo, Comparator.comparing(Employee::id) );
 	}
 
 	@Override
 	public List<Employee> getEmployeesByAge(int ageFrom, int ageTo) {
-
-		return employeesAge.subMap(getLocalDate(ageFrom), true, getLocalDate(ageTo), true).values().stream()
-				.flatMap(col -> col.stream().sorted(Comparator.comparing(Employee::id))).toList();
+		LocalDate from = getLocalDate(ageFrom);
+		LocalDate to = getLocalDate(ageTo);
+		return getByCategory(employeesAge, from, to, Comparator.comparing(Employee::id));
 
 	}
 
@@ -153,9 +151,8 @@ public class CompanyImpl implements Company {
 	@Override
 	public Employee updateSalary(long id, int newSalary) {
 		Employee res = employees.get(id);
-		//employees.computeIfPresent(id, (k,v) -> v = new Employee(res.id(), res.name(),res.department(), newSalary, res.birthDate()));
-		removeEmployee(res.id());
 		Employee emplUpdated = new Employee(res.id(), res.name(),res.department(), newSalary, res.birthDate());
+     	removeEmployee(id);		
 		addEmployee(emplUpdated);
 		return res;
 	}

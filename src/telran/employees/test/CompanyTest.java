@@ -143,6 +143,7 @@ Company company;
 		expected.add(empl1);
 		expected.add(empl3);
 		List<Employee> actualy = company.getEmployeesBySalary(salaryFrom, salaryTo);
+		System.out.println(actualy.toString());
 		assertArrayEquals(expected.toArray(Employee[]::new), actualy.toArray(Employee[]::new));
 	}
 	@Test
