@@ -47,8 +47,6 @@ public interface Company {
 		}
 	};
 	
-	
-	
 	//new methods from homework #36
 	List<Employee> getEmployeesByDepartment(String department);
 	List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo);
@@ -56,25 +54,6 @@ public interface Company {
 	Employee updateSalary(long id, int newSalary);//returns employee before updating
 	Employee updateDepartment(long id, String newDepartment);
 	
-	default <T, K> List<T> getByCategory(Map<K,Collection<T>> map, K category, Comparator<T> comp ) {		
-		 return map.get(category).stream()
-			.sorted(comp).toList();
-	 }
-	
-	default <T, K> List<T> getByCategory(TreeMap<K,Collection<T>> map,
-			            K from, K to, Comparator<T> comp) {
-		return  map.subMap(from, true, to, true).values().stream()
-				 .flatMap(col -> col.stream().sorted(comp))
-				 .toList();					
-	}
-	
-	default public <K,T> void remove (Map<K, Collection<T>> map, K key, T object){
-		Collection<T> collection = map.get(key);
-		collection.remove(object);
-		if(collection.isEmpty()) {
-			map.remove(collection);
-		}		
-	}
 	
 }
 

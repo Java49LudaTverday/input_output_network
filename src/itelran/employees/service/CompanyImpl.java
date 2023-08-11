@@ -5,6 +5,10 @@ import java.util.*;
 import itelran.employees.dto.DepartmentSalary;
 import itelran.employees.dto.Employee;
 import itelran.employees.dto.SalaryDistribution;
+import itelran.employees.util.Organization;
+
+
+
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -23,41 +27,23 @@ public class CompanyImpl implements Company {
 		Employee emplRes = employees.putIfAbsent(empl.id(), empl);
 		if (emplRes == null) {
 			res = true;
-			addEmployeeSalary(empl);
-			addEmployeesAge(empl);
-			addEmployeesDep(empl);
+//			addEmployeeSalary(empl);
+//			addEmployeesAge(empl);
+//			addEmployeesDep(empl);
+			Organization.addToMap(employeesSalary, empl.salary(), empl);
+			Organization.addToMap(employeesAge, empl.birthDate(), empl);
+			Organization.addToMap(employeesDep, empl.department(), empl);
 		}
 		return res;
-	}
-
-	private void addEmployeesDep(Employee empl) {
-		String dep = empl.department();
-		employeesDep.computeIfAbsent(dep, k -> new HashSet<>()).add(empl);
-
-	}
-
-	private void addEmployeesAge(Employee empl) {
-		LocalDate birthDate = empl.birthDate();
-		employeesAge.computeIfAbsent(birthDate, k -> new HashSet<>()).add(empl);
-
-	}
-
-	private void addEmployeeSalary(Employee empl) {
-
-		// if mapping no -> add;
-		// if there is one -> no mapping;
-		int salary = empl.salary();
-		employeesSalary.computeIfAbsent(salary, k -> new HashSet<>()).add(empl);
-
 	}
 
 	@Override
 	public Employee removeEmployee(long id) {
 		Employee empl = employees.remove(id);
 		if (empl != null) {
-			remove(employeesSalary, empl.salary(), empl);
-			remove(employeesAge, empl.birthDate(), empl);
-			remove(employeesDep, empl.department(), empl);
+			Organization.remove(employeesSalary, empl.salary(), empl);
+			Organization.remove(employeesAge, empl.birthDate(), empl);
+			Organization.remove(employeesDep, empl.department(), empl);
 		}
 		return empl;
 	}
@@ -95,13 +81,13 @@ public class CompanyImpl implements Company {
 	@Override
 	public List<Employee> getEmployeesByDepartment(String department) {
 
-		return getByCategory(employeesDep, department, Comparator.comparing(Employee::id) );
+		return Organization.getByCategory(employeesDep, department, Comparator.comparing(Employee::id) );
 	}
 
 	@Override
 	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
 
-		return getByCategory(employeesSalary, salaryFrom,
+		return Organization.getByCategory(employeesSalary, salaryFrom,
 				salaryTo, Comparator.comparing(Employee::id));
 	}
 
@@ -109,7 +95,7 @@ public class CompanyImpl implements Company {
 	public List<Employee> getEmployeesByAge(int ageFrom, int ageTo) {
 		LocalDate from = getLocalDate(ageFrom);
 		LocalDate to = getLocalDate(ageTo);
-		return getByCategory(employeesAge, from, 
+		return Organization.getByCategory(employeesAge, from, 
 				to, Comparator.comparing(Employee::id));
 
 	}
