@@ -55,38 +55,11 @@ public class CompanyImpl implements Company {
 	public Employee removeEmployee(long id) {
 		Employee empl = employees.remove(id);
 		if (empl != null) {
-			removeEmployeeSalary(empl);
-			removeEmployeeAge(empl);
-			removeEmployeeDep(empl);
+			remove(employeesSalary, empl.salary(), empl);
+			remove(employeesAge, empl.birthDate(), empl);
+			remove(employeesDep, empl.department(), empl);
 		}
 		return empl;
-	}
-
-	private void removeEmployeeDep(Employee empl) {
-		String dep = empl.department();
-		Collection<Employee> employeesCol = employeesDep.get(dep);
-		employeesCol.remove(empl);
-		if (employeesCol.isEmpty()) {
-			employeesDep.remove(employeesCol);
-		}
-	}
-
-	private void removeEmployeeAge(Employee empl) {
-		LocalDate birthDate = empl.birthDate();
-		Collection<Employee> employeesCol = employeesAge.get(birthDate);
-		employeesCol.remove(empl);
-		if (employeesCol.isEmpty()) {
-			employeesAge.remove(birthDate);
-		}
-	}
-
-	private void removeEmployeeSalary(Employee empl) {
-		int salary = empl.salary();
-		Collection<Employee> employeesCol = employeesSalary.get(salary);
-		employeesCol.remove(empl);
-		if (employeesCol.isEmpty()) {
-			employeesSalary.remove(salary);
-		}
 	}
 
 	@Override
@@ -151,16 +124,20 @@ public class CompanyImpl implements Company {
 	@Override
 	public Employee updateSalary(long id, int newSalary) {
 		Employee res = employees.get(id);
-		Employee emplUpdated = new Employee(res.id(), res.name(), res.department(), newSalary, res.birthDate());
-		updateEmployee(id, emplUpdated);
+		if(res != null) {
+			Employee emplUpdated = new Employee(res.id(), res.name(), res.department(), newSalary, res.birthDate());
+			updateEmployee(id, emplUpdated);
+		}		
 		return res;
 	}
 
 	@Override
 	public Employee updateDepartment(long id, String newDepartment) {
 		Employee res = employees.get(id);
-		Employee emplUpdated = new Employee(res.id(), res.name(), newDepartment, res.salary(), res.birthDate());
-		updateEmployee(id, emplUpdated);
+		if(res != null) {
+			Employee emplUpdated = new Employee(res.id(), res.name(), newDepartment, res.salary(), res.birthDate());
+		    updateEmployee(id, emplUpdated);
+		}		
 		return res;
 	}
 

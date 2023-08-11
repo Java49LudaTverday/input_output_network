@@ -187,5 +187,6 @@ Company company;
 		assertEquals(beforUpd, empl1);
 		assertEquals(newDep, company.getEmployee(ID1).department());
 	}
+	
 
 }

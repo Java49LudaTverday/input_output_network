@@ -16,11 +16,19 @@ public interface Company {
 	boolean addEmployee(Employee empl);
 	Employee removeEmployee(long id);
 	Employee getEmployee(long id);
-	List<Employee> getEmployees();
-	List<DepartmentSalary> getDepartmentSalaryDistribution();// returns list of departments with average salary
-	List<SalaryDistribution> getSalaryDistribution(int interval);//returns salary values distribution: min,  max,  num of employee
 	
-	default void restore(String filePath) {;//restore from file//get employee and add to file
+	// gets list of employees 
+	List<Employee> getEmployees();
+	
+	// returns list of departments with average salary
+	List<DepartmentSalary> getDepartmentSalaryDistribution();
+	
+	//returns salary values distribution: min,  max,  num of employee
+	//interval = 1000;[10000-11000];
+	List<SalaryDistribution> getSalaryDistribution(int interval);
+	
+	//restores from file
+	default  void restore(String filePath) {;
 	if(Files.exists(Path.of(filePath))) {
 		try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath))) {
 			List<Employee> employeesRestor = (List<Employee>) input.readObject();
@@ -30,15 +38,17 @@ public interface Company {
 		}
 		}
 	}
+	//writs to file
 	default void save(String filePath) {
 		try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath))) {
 			output.writeObject(getEmployees());
 		} catch (IOException ex) {
 			new RuntimeException(ex.toString());
 		}
-		//output.writeObject(new ArrayList<>(employees.values());
-	};//writs to file// gets list of employee all
-	//interval = 1000;[10000-11000];
+	};
+	
+	
+	
 	//new methods from homework #36
 	List<Employee> getEmployeesByDepartment(String department);
 	List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo);
@@ -57,7 +67,14 @@ public interface Company {
 				 .flatMap(col -> col.stream().sorted(comp))
 				 .toList();					
 	}
-	 
+	
+	default public <K,T> void remove (Map<K, Collection<T>> map, K key, T object){
+		Collection<T> collection = map.get(key);
+		collection.remove(object);
+		if(collection.isEmpty()) {
+			map.remove(collection);
+		}		
+	}
 	
 }
 
