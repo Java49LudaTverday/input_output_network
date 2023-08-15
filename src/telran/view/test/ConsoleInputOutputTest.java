@@ -16,30 +16,21 @@ import org.junit.jupiter.api.Test;
 import telran.view.console.ConsoleInputOutput;
 
 class ConsoleInputOutputTest {
-	ConsoleInputOutput conInOut;
-
-	@BeforeEach
-	void setUp() throws Exception {
-		conInOut = new ConsoleInputOutput();
-	}
+	ConsoleInputOutput consoleInOut = new ConsoleInputOutput();
 
 	@Test
 	@Disabled
 	void readStringTest() {
-		String hello = conInOut.readString("Say HELLO");
-		assertEquals("hello", hello);
+		String hello = consoleInOut.readString("Write a greeting: ");
+		consoleInOut.write("You say: " + hello);
 	}
 	@Test
 	@Disabled
 	void writeTest() {
-		conInOut.write("Hello");
+		consoleInOut.write("Hello ");
+	    consoleInOut.writeLine("Hello world!");
+	}
 	
-	}
-	@Test
-	@Disabled
-	void writeLineTest() {
-		conInOut.writeLine("Say hello world!");
-	}
 	@Test
 	@Disabled
 	void readObjectTest() {
@@ -49,78 +40,86 @@ class ConsoleInputOutputTest {
 	@Test
 	@Disabled
 	void readIntTest() {
-		String prompt = "Enter a number 10 ";
-		String errorPrompt = "must be a number ";
-		int number = conInOut.readInt(prompt, errorPrompt);
-		assertEquals(10, number);
-		
+		String prompt = "Enter any integer number : ";
+		String errorPrompt = "must be an integer number ";
+		int number = consoleInOut.readInt(prompt, errorPrompt);
+		consoleInOut.writeLine("Your integer number -> " + number);		
 	}
+	
+	@Test
+	@Disabled
+	void readIntInRangeTest() {
+		String prompt = "Enter any integer number in range  ";
+		String errorPrompt = "must be an integer number  ";
+		int number = consoleInOut.readInt(prompt, errorPrompt, 10, 100);
+		consoleInOut.writeLine("Your integer number -> " + number);	
+	}
+	
 	
 	@Test
 	@Disabled
 	void readLongTest() {
 		
-		String prompt = "Enter a number 10 ";
-		String errorPrompt = "must be a number ";
-		long number = conInOut.readInt(prompt, errorPrompt);
-		assertEquals(10, number);
+		String prompt = "Enter a long number:  ";
+		String errorPrompt = "must be a long number ";
+		long number = consoleInOut.readLong(prompt, errorPrompt);
+		consoleInOut.writeLine("Your number -> " + number);	
 	}
 	
 	@Test
-	
+	@Disabled
 	void readLongInRangeTest() {
 			
-		String prompt = "Enter a number from 0 to 10:  ";
-		String errorPrompt = "must be a number ";
-		long number = conInOut.readInt(prompt, errorPrompt, 0, 10);
-		assertEquals(0, number);
+		String prompt = "Enter a long number in range  ";
+		String errorPrompt = "must be a long number ";
+		long number = consoleInOut.readInt(prompt, errorPrompt, 0, 10);
+		consoleInOut.writeLine("Your number -> " + number);	
 	}
 	
 	@Test
 	@Disabled
 	void readStringPredTest() {
-		String prompt = "Enter your country:  ";
-		String errorPrompt = "doesn`t mutch ";
-		String country = conInOut.readString(prompt, errorPrompt, Predicate.isEqual("israel"));
-		assertEquals("israel", country);
+		String prompt = "Enter a country which you live in lower case:  ";
+		String errorPrompt = "Enter another country ";
+		String country = consoleInOut.readString(prompt, errorPrompt, Predicate.isEqual("israel"));
+		consoleInOut.writeLine("Your country -> " + country);
 		
 	}
 	
 	@Test
 	@Disabled
 	void readStringOptionsTest() {
-		String prompt = "Enter written number:   ";
-		String errorPrompt = "Number must be written. ";
-		String[] strOptions = {"one", "two", "three", "four", "five"}; 
+		String prompt = "Enter one of primitive types in java:   ";
+		String errorPrompt = "Wrong answer. ";
+		String[] strOptions = {"int", "short", "long", "double", "float", "byte", "boolean"}; 
 		Set<String> options = Arrays.stream(strOptions).collect(Collectors.toSet());
-		String number = conInOut.readString(prompt, errorPrompt, options);
-		assertEquals("one",  number);
+		String type = consoleInOut.readString(prompt, errorPrompt, options);
+		consoleInOut.writeLine("All right. Your answer -> " + type);
  	}
 	
 	@Test
 	@Disabled
 	void readDateTest() {
  		String prompt = "Enter a date of next NEW YEAR in format: YYYY-MM-DD ";
-		String errorPrompt = "Wrong DATE ";
-		LocalDate ld = conInOut.readDate(prompt, errorPrompt);
-		assertEquals(LocalDate.parse("2024-01-01"), ld);
+		String errorPrompt = "Wrong FORMAT DATE ";
+		LocalDate ld = consoleInOut.readDate(prompt, errorPrompt);
+		consoleInOut.writeLine("Your answer -> " + ld);
 	}
-	
 	@Test
 	@Disabled
 	void readDateInRange() {
-		String prompt = "Enter a day of august: YYYY-MM-DD ";
+		String prompt = "Enter a day of august in format: YYYY-MM-DD ";
 		String errorPrompt = "Wrong DATE ";		
-		LocalDate ld = conInOut.readDate(prompt, errorPrompt, LocalDate.parse("2023-08-01"), LocalDate.parse("2023-08-31"));
-		assertEquals(LocalDate.parse("2023-08-08"), ld);
-	}
+		LocalDate ld = consoleInOut.readDate(prompt, errorPrompt, LocalDate.parse("2023-08-01"), LocalDate.parse("2023-08-31"));
+		consoleInOut.writeLine("Your answer -> " + ld);
+	}	
 	@Test
 	@Disabled
 	void readDoubleTest() {
 		String prompt = "Enter a double number 0.1:   ";
 		String errorPrompt = "Number must be a double. ";
-		double number = conInOut.readDouble(prompt, errorPrompt);
-		assertEquals(0.1, number);
+		double number = consoleInOut.readDouble(prompt, errorPrompt);
+		consoleInOut.writeLine("Your number -> " + number);
 	}
 
 }

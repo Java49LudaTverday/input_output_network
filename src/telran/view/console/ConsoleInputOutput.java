@@ -61,12 +61,12 @@ public class ConsoleInputOutput {
 		
 	}
 	public long readLong(String prompt, String errorPrompt) {		
-		return readObject(errorPrompt, errorPrompt, Long::parseLong);
+		return readObject(prompt, errorPrompt, Long::parseLong);
 	}
 	
 	public long readLong(String prompt, String errorPrompt, long min, long max) {
 		
-		return readObject(errorPrompt, errorPrompt, sl -> {
+		return readObject(prompt, errorPrompt, sl -> {
 			Long res = Long.parseLong(sl);
 			if(res < min) {
 				throw new IllegalArgumentException(" must be not less than " +  min);
@@ -90,10 +90,10 @@ public class ConsoleInputOutput {
 	
 	public String readString(String prompt, String errorPrompt, Set<String> options) {
 		
-		return readObject(errorPrompt, errorPrompt, s -> {
+		return readObject(prompt, errorPrompt, s -> {
 			String res = s;
 			if(!options.contains(s)) {
-				throw new IllegalArgumentException( s + " -> not includes to set ");
+				throw new IllegalArgumentException( s + " -> isn`t mutch ");
 			};
 			return res;
 		});
@@ -101,13 +101,13 @@ public class ConsoleInputOutput {
 	
 	public LocalDate readDate(String prompt, String errorPrompt ) {
 		
-		return readObject(errorPrompt, errorPrompt, LocalDate::parse);		
+		return readObject(prompt, errorPrompt, LocalDate::parse);		
 	}
 	
 	public LocalDate readDate(String prompt, String errorPrompt,
 			LocalDate from, LocalDate to) {
 		
-		return readObject(errorPrompt, errorPrompt, sld -> {
+		return readObject(prompt, errorPrompt, sld -> {
 			LocalDate res = LocalDate.parse(sld);
 			if(!res.isAfter(from)) {
 				throw new IllegalArgumentException(" must be not less than " +  from);
@@ -121,7 +121,7 @@ public class ConsoleInputOutput {
 	
 	public double readDouble(String prompt, String errorPrompt) {
 		
-		return readObject(errorPrompt, errorPrompt, Double::parseDouble);
+		return readObject(prompt, errorPrompt, Double::parseDouble);
 	}
 
 }
