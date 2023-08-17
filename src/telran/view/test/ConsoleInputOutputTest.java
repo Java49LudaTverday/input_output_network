@@ -13,9 +13,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import telran.view.console.ConsoleInputOutput;
+import telran.view.ConsoleInputOutput;
 
-class ConsoleInputOutputTest {
+
+public class ConsoleInputOutputTest  {
 	ConsoleInputOutput consoleInOut = new ConsoleInputOutput();
 
 	@Test
