@@ -2,6 +2,7 @@ package telran.employees.controller;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Supplier;
 
 import itelran.employees.dto.DepartmentSalary;
 import itelran.employees.dto.Employee;
@@ -51,7 +52,7 @@ public class CompanyController {
 	
 
 	static void addEmployeeItem(InputOutput io) {
-		long id = io.readLong("Enter Employee identity: ", "Wrong identity value ", MIN_ID, MAX_ID);
+		long id = getID(io, false);
 		String name = io.readString("Enter Employee`s name: ", "Wrong name: ", str -> str.matches("[A-Z][a-z]+"));
 
 		String department = io.readString("Enter department: ", "Wrong department", departments);
@@ -62,20 +63,22 @@ public class CompanyController {
 				: String.format("Employee with id %d already exists", id));
 	}
 
+	
+
 	private static LocalDate getBirthDate(int age) {
 		
 		return LocalDate.now().minusYears(age);
 	}
 	
 	static void removeEmployeeItem(InputOutput io) {
-		long id = io.readLong("Enter Employee`s id: ", "Wrong id ", MIN_ID, MAX_ID);
+		long id = getID(io, true);
 		Employee res = company.removeEmployee(id);
 		io.writeLine(res != null ? String.format("Employee with id %d has been removed", id) :
 			String.format("Employee with id %d doesn`t exist", id));
 	}
 	
 	static void getEmployeeItem(InputOutput io) {
-		long id = io.readLong("Enter Employee`s id: ", "Wrong id ", MIN_ID, MAX_ID);
+		long id = getID(io, true);
 		Employee res = company.getEmployee(id);
 		io.writeLine(res != null ?  res  :
 			String.format("Employee with id %d doesn`t exist", id));
@@ -93,9 +96,14 @@ public class CompanyController {
 	
 	static void getEmployeesByDepartmentItem(InputOutput io) {
 		String department = io.readString("Enter department: ", "Wrong department ", departments);
-		List<Employee> res = company.getEmployeesByDepartment(department);
-		io.writeLine(String.format("Employees by department %s: ", department));
-		res.forEach(io::writeLine);
+//		List<Employee> res = company.getEmployeesByDepartment(department);
+//		io.writeLine(String.format("Employees by department %s: ", department));
+//		res.forEach(io::writeLine);
+		printListEmployees(io,() -> company.getEmployeesByDepartment(department) );
+	}
+
+	private static <T> void printListEmployees (InputOutput io, Supplier<List<T>> supplier) {
+		supplier.get().forEach(io::writeLine);
 	}
 	
 	static void getEmployeesBySalaryItem(InputOutput io) {
@@ -114,14 +122,14 @@ public class CompanyController {
 	}
 	
 	static void updateSalaryItem(InputOutput io) {
-		long id = io.readLong("Enter Employee`s id: ", "Wrong id ", MIN_ID, MAX_ID);
+		long id = getID(io, true);
 		int newSalary = io.readInt("Enter new salary : ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
 		Employee empl = company.updateSalary(id, newSalary);
 		io.writeLine(String.format("Employee with id %d has been updated", id));
 	}
 	
 	static void updateDepartmentItem(InputOutput io) {
-		long id = io.readLong("Enter Employee`s id: ", "Wrong id ", MIN_ID, MAX_ID);
+		long id = getID(io, true);
 		String newDepartment = io.readString("Enter new department : ", "Wrong department ", departments);
 		Employee empl = company.updateDepartment(id, newDepartment);
 		io.writeLine(String.format("Employee with id %d has been updated", id));
@@ -132,5 +140,22 @@ public class CompanyController {
 		List<SalaryDistribution> res = company.getSalaryDistribution(interval);
 		res.forEach(io::writeLine);
 	}
-
+	
+	private static long getID(InputOutput io, boolean isExist) {
+		long id;
+		boolean res = false;
+		do {
+			id = io.readLong("Enter Employee identity: ", 
+					"Wrong identity value  ", MIN_ID, MAX_ID);
+			Employee empl = company.getEmployee(id);
+			if(empl != null) {
+				io.writeLine(String.format("Employee with ID %d is exists", id));
+				res = isExist == true ? false : true ;
+			} else {
+				io.writeLine(String.format("Employee with ID %d don`t exists", id));
+				res = isExist == true ? true : false ;
+			}
+		} while (res);
+		return id;
+	}
 }
