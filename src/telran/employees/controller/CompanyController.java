@@ -2,6 +2,7 @@ package telran.employees.controller;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import itelran.employees.dto.DepartmentSalary;
@@ -58,9 +59,8 @@ public class CompanyController {
 		String department = io.readString("Enter department: ", "Wrong department", departments);
 		int salary = io.readInt("Enter Employee`s salary: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
 		LocalDate birthDate = io.readDate("Enter Employee`s birth date: ", "Wrong birth Date entered ", getBirthDate(MAX_AGE), getBirthDate(MIN_AGE));
-		boolean res = company.addEmployee(new Employee(id, name, department, salary, birthDate));
-		io.writeLine(res ? String.format("Employee with id %d has been added", id)
-				: String.format("Employee with id %d already exists", id));
+		supplyAndDisplayResult(io, () -> company.addEmployee(new Employee(id, name, department, salary, birthDate)), 
+				String.format("Employee with id %d has been added", id));
 	}
 
 	
@@ -72,73 +72,64 @@ public class CompanyController {
 	
 	static void removeEmployeeItem(InputOutput io) {
 		long id = getID(io, true);
-		Employee res = company.removeEmployee(id);
-		io.writeLine(res != null ? String.format("Employee with id %d has been removed", id) :
-			String.format("Employee with id %d doesn`t exist", id));
+		supplyAndDisplayResult(io, () -> company.removeEmployee(id), 
+				String.format("Employee with id %d has been removed", id));
 	}
 	
 	static void getEmployeeItem(InputOutput io) {
 		long id = getID(io, true);
 		Employee res = company.getEmployee(id);
-		io.writeLine(res != null ?  res  :
-			String.format("Employee with id %d doesn`t exist", id));
+		io.writeLine( res );		
 	}
 	
 	static void getEmployeesItem(InputOutput io) {
-		List<Employee> res = company.getEmployees();
-		res.forEach(io::writeLine);
+
+		displayListObjects (io, () -> company.getEmployees(), "");
 	}
 	
 	static void getEmployeesDepartmentSalaryDistributionItem(InputOutput io) {
-		company.getDepartmentSalaryDistribution().forEach(io::writeLine);
+		
+		displayListObjects(io,() -> company.getDepartmentSalaryDistribution(), "");
 		
 	}
 	
 	static void getEmployeesByDepartmentItem(InputOutput io) {
 		String department = io.readString("Enter department: ", "Wrong department ", departments);
-//		List<Employee> res = company.getEmployeesByDepartment(department);
-//		io.writeLine(String.format("Employees by department %s: ", department));
-//		res.forEach(io::writeLine);
-		printListEmployees(io,() -> company.getEmployeesByDepartment(department) );
-	}
-
-	private static <T> void printListEmployees (InputOutput io, Supplier<List<T>> supplier) {
-		supplier.get().forEach(io::writeLine);
-	}
+		displayListObjects(io,() -> company.getEmployeesByDepartment(department), 
+				String.format("Employees by department %s: ", department ));
+	}	
 	
 	static void getEmployeesBySalaryItem(InputOutput io) {
 		int salaryFrom = io.readInt("Enter salary from: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
 		int salaryTo = io.readInt("Enter salary to: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		List<Employee> res = company.getEmployeesBySalary(salaryFrom, salaryTo);
-		io.writeLine(String.format("Employees with salary %d - %d: ", salaryFrom, salaryTo));
-		res.forEach(io::writeLine);
+		displayListObjects(io, () -> company.getEmployeesBySalary(salaryFrom, salaryTo), 
+				String.format("Employees with salary %d - %d: ", salaryFrom, salaryTo));
 	}
 	
 	static void  getEmployeesByAgeItem(InputOutput io) {
 		int ageFrom = io.readInt("Enter age from: ", "Wrong age ", MIN_AGE, MAX_AGE);
 		int ageTo = io.readInt("Enter age to: ", "Wrong age ", MIN_AGE, MAX_AGE);
-		List<Employee> res = company.getEmployeesByAge(ageFrom, ageTo);
-		io.writeLine(String.format("Employees with age %d - %d: \n%s", ageFrom, ageTo, res));
+		displayListObjects(io, () -> company.getEmployeesByAge(ageFrom, ageTo), 
+				String.format("Employees with age %d - %d:", ageFrom, ageTo));
 	}
 	
 	static void updateSalaryItem(InputOutput io) {
 		long id = getID(io, true);
 		int newSalary = io.readInt("Enter new salary : ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		Employee empl = company.updateSalary(id, newSalary);
-		io.writeLine(String.format("Employee with id %d has been updated", id));
+		supplyAndDisplayResult(io, () -> company.updateSalary(id, newSalary), 
+				String.format("Employee with id %d has been updated", id));
 	}
 	
 	static void updateDepartmentItem(InputOutput io) {
 		long id = getID(io, true);
 		String newDepartment = io.readString("Enter new department : ", "Wrong department ", departments);
-		Employee empl = company.updateDepartment(id, newDepartment);
-		io.writeLine(String.format("Employee with id %d has been updated", id));
+		supplyAndDisplayResult(io, () -> company.updateDepartment(id, newDepartment), 
+				String.format("Employee with id %d has been updated", id));
 	}
 	
 	static void getSalaryDistribution(InputOutput io) {
 		int interval = io.readInt("Enter interval: ", "Wrong interval ", MIN_INTERVAL, MAX_SALARY);
-		List<SalaryDistribution> res = company.getSalaryDistribution(interval);
-		res.forEach(io::writeLine);
+		displayListObjects(io, () -> company.getSalaryDistribution(interval), "");
 	}
 	
 	private static long getID(InputOutput io, boolean isExist) {
@@ -157,5 +148,15 @@ public class CompanyController {
 			}
 		} while (res);
 		return id;
+	}
+	
+	private static <T> void displayListObjects (InputOutput io, Supplier<List<T>> supplier, String prompt) {
+		List<T> employees = supplier.get();
+		io.writeLine(prompt);
+	    employees.forEach(io::writeLine);
+	}
+	private static <T> void supplyAndDisplayResult (InputOutput io, Supplier<T> supplier, String result) {
+		supplier.get();
+		io.writeLine(result);
 	}
 }
