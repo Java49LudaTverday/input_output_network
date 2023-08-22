@@ -23,7 +23,7 @@ public class CompanyController {
 	private static final int MIN_INTERVAL = 1;
 	static private Set<String> departments = new HashSet<>(
 			Arrays.asList(new String[] { "QA", "Development", "Audit", "Management", "Accounting" }));
-	
+
 	static Company company;
 
 	public static ArrayList<Item> getCompanyItems(Company company) {
@@ -34,23 +34,18 @@ public class CompanyController {
 
 	private static Item[] getItems() {
 
-		return new Item[] {
-				Item.of("Add new Employee",CompanyController::addEmployeeItem ),
-				Item.of("Remove new Employee",CompanyController::removeEmployeeItem ),
-				Item.of("All Employees ",CompanyController::getEmployeesItem ),
-				Item.of("Data about Employee",CompanyController::getEmployeeItem ),
-				Item.of("Employees by Salary",CompanyController::getEmployeesBySalaryItem ),
-				Item.of("Employees by Department",CompanyController::getEmployeesByDepartmentItem ),
-				Item.of("Update salary Employee",CompanyController::updateSalaryItem ),
-				Item.of("Departments and Salary",CompanyController::getEmployeesDepartmentSalaryDistributionItem ),
-				Item.of("Distribution by Salary",CompanyController::getSalaryDistribution ),
-				Item.of("Employee by Age",CompanyController::getEmployeesByAgeItem ),
-				Item.of("Update department",CompanyController::updateDepartmentItem )
-
-		};
+		return new Item[] { Item.of("Add new Employee", CompanyController::addEmployeeItem),
+				Item.of("Remove new Employee", CompanyController::removeEmployeeItem),
+				Item.of("All Employees ", CompanyController::getEmployeesItem),
+				Item.of("Data about Employee", CompanyController::getEmployeeItem),
+				Item.of("Employees by Salary", CompanyController::getEmployeesBySalaryItem),
+				Item.of("Employees by Department", CompanyController::getEmployeesByDepartmentItem),
+				Item.of("Update salary Employee", CompanyController::updateSalaryItem),
+				Item.of("Departments and Salary", CompanyController::getEmployeesDepartmentSalaryDistributionItem),
+				Item.of("Distribution by Salary", CompanyController::getSalaryDistribution),
+				Item.of("Employee by Age", CompanyController::getEmployeesByAgeItem),
+				Item.of("Update department", CompanyController::updateDepartmentItem) };
 	}
-
-	
 
 	static void addEmployeeItem(InputOutput io) {
 		long id = getID(io, false);
@@ -58,105 +53,123 @@ public class CompanyController {
 
 		String department = io.readString("Enter department: ", "Wrong department", departments);
 		int salary = io.readInt("Enter Employee`s salary: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		LocalDate birthDate = io.readDate("Enter Employee`s birth date: ", "Wrong birth Date entered ", getBirthDate(MAX_AGE), getBirthDate(MIN_AGE));
-		supplyAndDisplayResult(io, () -> company.addEmployee(new Employee(id, name, department, salary, birthDate)), 
+		LocalDate birthDate = io.readDate("Enter Employee`s birth date: ", "Wrong birth Date entered ",
+				getBirthDate(MAX_AGE), getBirthDate(MIN_AGE));
+		supplyAndDisplayResult(io, () -> company.addEmployee(new Employee(id, name, department, salary, birthDate)),
 				String.format("Employee with id %d has been added", id));
 	}
 
-	
-
 	private static LocalDate getBirthDate(int age) {
-		
+
 		return LocalDate.now().minusYears(age);
 	}
-	
+
 	static void removeEmployeeItem(InputOutput io) {
 		long id = getID(io, true);
-		supplyAndDisplayResult(io, () -> company.removeEmployee(id), 
+		supplyAndDisplayResult(io, () -> company.removeEmployee(id),
 				String.format("Employee with id %d has been removed", id));
 	}
-	
+
 	static void getEmployeeItem(InputOutput io) {
 		long id = getID(io, true);
 		Employee res = company.getEmployee(id);
-		io.writeLine( res );		
+		io.writeLine(res);
 	}
-	
+
 	static void getEmployeesItem(InputOutput io) {
 
-		displayListObjects (io, () -> company.getEmployees(), "");
+		displayListObjects(io, () -> company.getEmployees(), "");
 	}
-	
+
 	static void getEmployeesDepartmentSalaryDistributionItem(InputOutput io) {
-		
-		displayListObjects(io,() -> company.getDepartmentSalaryDistribution(), "");
-		
+
+		displayListObjects(io, () -> company.getDepartmentSalaryDistribution(), "");
+
 	}
-	
+
 	static void getEmployeesByDepartmentItem(InputOutput io) {
 		String department = io.readString("Enter department: ", "Wrong department ", departments);
-		displayListObjects(io,() -> company.getEmployeesByDepartment(department), 
-				String.format("Employees by department %s: ", department ));
-	}	
-	
+		displayListObjects(io, () -> company.getEmployeesByDepartment(department),
+				String.format("Employees by department %s: ", department));
+	}
+
 	static void getEmployeesBySalaryItem(InputOutput io) {
-		int salaryFrom = io.readInt("Enter salary from: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		int salaryTo = io.readInt("Enter salary to: ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		displayListObjects(io, () -> company.getEmployeesBySalary(salaryFrom, salaryTo), 
-				String.format("Employees with salary %d - %d: ", salaryFrom, salaryTo));
-	}
 	
-	static void  getEmployeesByAgeItem(InputOutput io) {
-		int ageFrom = io.readInt("Enter age from: ", "Wrong age ", MIN_AGE, MAX_AGE);
-		int ageTo = io.readInt("Enter age to: ", "Wrong age ", MIN_AGE, MAX_AGE);
-		displayListObjects(io, () -> company.getEmployeesByAge(ageFrom, ageTo), 
-				String.format("Employees with age %d - %d:", ageFrom, ageTo));
+		int[] range = getRangeInt(io, "Enter salary", "Wrong salary ", MIN_SALARY, MAX_SALARY);
+		displayListObjects(io, () -> company.getEmployeesBySalary(range[0], range[1]),
+				String.format("Employees with salary %d - %d: ", range[0], range[1]));
 	}
+
+	static void getEmployeesByAgeItem(InputOutput io) {
+		int[] range = getRangeInt(io, "Enter age", "Wrong age ", MIN_AGE, MAX_AGE);
+		displayListObjects(io, () -> company.getEmployeesByAge(range[0], range[1]),
+				String.format("Employees with age %d - %d:", range[0], range[1]));
+	}
+
 	
+
 	static void updateSalaryItem(InputOutput io) {
 		long id = getID(io, true);
 		int newSalary = io.readInt("Enter new salary : ", "Wrong salary ", MIN_SALARY, MAX_SALARY);
-		supplyAndDisplayResult(io, () -> company.updateSalary(id, newSalary), 
+		supplyAndDisplayResult(io, () -> company.updateSalary(id, newSalary),
 				String.format("Employee with id %d has been updated", id));
 	}
-	
+
 	static void updateDepartmentItem(InputOutput io) {
 		long id = getID(io, true);
 		String newDepartment = io.readString("Enter new department : ", "Wrong department ", departments);
-		supplyAndDisplayResult(io, () -> company.updateDepartment(id, newDepartment), 
+		supplyAndDisplayResult(io, () -> company.updateDepartment(id, newDepartment),
 				String.format("Employee with id %d has been updated", id));
 	}
-	
+
 	static void getSalaryDistribution(InputOutput io) {
 		int interval = io.readInt("Enter interval: ", "Wrong interval ", MIN_INTERVAL, MAX_SALARY);
 		displayListObjects(io, () -> company.getSalaryDistribution(interval), "");
 	}
-	
+
 	private static long getID(InputOutput io, boolean isExist) {
 		long id;
 		boolean res = false;
 		do {
-			id = io.readLong("Enter Employee identity: ", 
-					"Wrong identity value  ", MIN_ID, MAX_ID);
+			id = io.readLong("Enter Employee identity: ", "Wrong identity value  ", MIN_ID, MAX_ID);
 			Employee empl = company.getEmployee(id);
-			if(empl != null) {
+			if (empl != null) {
 				io.writeLine(String.format("Employee with ID %d is exists", id));
-				res = isExist == true ? false : true ;
+				res = isExist == true ? false : true;
 			} else {
 				io.writeLine(String.format("Employee with ID %d don`t exists", id));
-				res = isExist == true ? true : false ;
+				res = isExist == true ? true : false;
 			}
 		} while (res);
 		return id;
 	}
-	
-	private static <T> void displayListObjects (InputOutput io, Supplier<List<T>> supplier, String prompt) {
+
+	private static <T> void displayListObjects(InputOutput io, Supplier<List<T>> supplier, String prompt) {
 		List<T> employees = supplier.get();
 		io.writeLine(prompt);
-	    employees.forEach(io::writeLine);
+		employees.forEach(io::writeLine);
 	}
-	private static <T> void supplyAndDisplayResult (InputOutput io, Supplier<T> supplier, String result) {
+
+	private static <T> void supplyAndDisplayResult(InputOutput io, Supplier<T> supplier, String result) {
 		supplier.get();
 		io.writeLine(result);
+	}
+	
+	private static int[] getRangeInt(InputOutput io, String prompt, String wrongPrompt, int minValue, int maxValue) {
+		boolean res = false;
+		int[] minMax = new int[2];
+		do {
+			int from = io.readInt(prompt + " from: ", wrongPrompt, minValue, maxValue);
+			int to = io.readInt(prompt + " to: ", wrongPrompt, minValue, maxValue);
+			if (from < to) {
+				res = true;
+				minMax[0] = from;
+				minMax[1] = to;
+			} else {
+				io.writeLine(wrongPrompt + " to must be greater than from");
+			}			
+		} while (!res);
+
+		return minMax;
 	}
 }
