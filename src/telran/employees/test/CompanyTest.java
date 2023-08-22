@@ -135,16 +135,9 @@ Company company;
 	
 	@Test
 	void getEmployeesBySalaryTest() {
-		int salaryFrom = 5000;
-		int salaryTo = 10000;
-		List<Employee> expected = new ArrayList<>();
-		expected.add(empl2);
-		expected.add(empl4);
-		expected.add(empl1);
-		expected.add(empl3);
-		List<Employee> actualy = company.getEmployeesBySalary(salaryFrom, salaryTo);
-		System.out.println(actualy.toString());
-		assertArrayEquals(expected.toArray(Employee[]::new), actualy.toArray(Employee[]::new));
+		runGetBySalaryTest(SALARY2, SALARY3, employees);
+		runGetBySalaryTest(SALARY3 + 1, 10000000, new Employee[0]);
+		runGetBySalaryTest(SALARY2, SALARY1, new Employee[] {empl1, empl2, empl3, empl4});
 	}
 	@Test
 	void getEmployeesByAgeTest() {
@@ -165,28 +158,35 @@ Company company;
 		assertArrayEquals (expected1.toArray(Employee[]::new), actual1.toArray(Employee[]::new));
 	}
 	@Test
-	void getEmployeesByDepTest() {
-		String dep = DEP1;
-		List<Employee> expected = new ArrayList<>();
-		expected.add(empl1);
-		expected.add(empl3);
-		List<Employee> actual = company.getEmployeesByDepartment(dep);
-		assertArrayEquals (expected.toArray(Employee[]::new), actual.toArray(Employee[]::new));
+	void getEmployeesByDepartmentTest() {
+		runGetByDepartmentTest("XXX", new Employee[0]);
+		runGetByDepartmentTest(DEP1, new Employee[] {empl1, empl3});
+		
 	}
 	@Test
 	void updateSalaryTest() {
-		int newSalary = 9000;
-		Employee beforUpd = company.updateSalary(ID2, newSalary);
-		assertEquals(beforUpd, empl2);
-		assertEquals(newSalary, company.getEmployee(ID2).salary());
+		company.updateSalary(ID5, SALARY1);
+		runGetBySalaryTest(SALARY3, SALARY3+1,new Employee[0]);
+		runGetBySalaryTest(SALARY2, SALARY1, new Employee[] {empl1, empl2, empl3, empl4, empl5});
 	}
 	@Test 
 	void updateDepartmentTest() {
-		String newDep = DEP2;
-		Employee beforUpd = company.updateDepartment(ID1, newDep);
-		assertEquals(beforUpd, empl1);
-		assertEquals(newDep, company.getEmployee(ID1).department());
+		Employee beforUpd = company.updateDepartment(ID5, DEP1);
+		runGetByDepartmentTest(DEP1, new Employee[] {empl1, empl3, empl5});
+		runGetByDepartmentTest(DEP3, new Employee[0]);
 	}
 	
+	private void runGetByDepartmentTest(String department, Employee[] expected) {
+		List<Employee> employees = 
+				new ArrayList<>(company.getEmployeesByDepartment(department));
+	employees.sort((e1, e2) -> Long.compare(e1.id(), e2.id()));
+	assertArrayEquals(expected, employees.toArray(Employee[]::new));
+	}
+	private void runGetBySalaryTest(int salaryFrom, int salaryTo, Employee[] expected) {
+		List<Employee> employees =
+				new ArrayList<>(company.getEmployeesBySalary(salaryFrom, salaryTo));		
+		employees.sort((e1, e2) -> Long.compare(e1.id(), e2.id()));
+		assertArrayEquals(expected, employees.toArray(Employee[]::new));
+	}
 
 }
