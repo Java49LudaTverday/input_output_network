@@ -1,9 +1,5 @@
 package telran.net.calculatorTCP;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import telran.net.*;
 
 public class CalculatorProtocol implements ApplProtocol {
