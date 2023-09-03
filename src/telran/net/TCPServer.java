@@ -20,7 +20,8 @@ public TCPServer (int port, ApplProtocol protocol) throws IOException {
 			while(true) {
 			Socket socket =	serverSocket.accept();
 			TcpClientServer clientServer = new TcpClientServer(socket, protocol);
-			clientServer.run();
+			Thread thread = new Thread(clientServer);
+			thread.start();
 			}
 			
 		} catch (Exception e) {
