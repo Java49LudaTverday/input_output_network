@@ -1,5 +1,6 @@
 package telran.employees;
 
+import java.io.IOException;
 import java.util.*;
 
 import telran.employees.controller.CompanyController;
@@ -14,30 +15,30 @@ public class CompanyClientAppl {
 
 	public static void main(String[] args) {
 		InputOutput ioMain = new ConsoleInputOutput();
-
 		try {
-
+		
 			final TcpHandler tcpHandler = new TcpHandler(HOST, PORT);
-			Company company = new CompanyNetProxy(tcpHandler);
-
-			ArrayList<Item> companyItems = CompanyController.getCompanyItems(company);
-			companyItems.add(Item.of("Exit ", io -> {
-				try {
-					
-					tcpHandler.close();
-					
-				} catch (Exception e) {
-					
-					System.out.println(e.getMessage());
-				}
-			}));
-			Menu menu = new Menu("Company Application", companyItems);
-
-			menu.perform(ioMain);
+		
+		Company company = new CompanyNetProxy(tcpHandler);
+		
+		ArrayList<Item> companyItems = CompanyController.getCompanyItems(company);
+		companyItems.add(Item.of("Exit", io -> {
+			try {
+				tcpHandler.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}, true));
+		Menu menu = new Menu("Company Application", companyItems);
+		
+		menu.perform(new ConsoleInputOutput());
+		
 		} catch (Exception e) {
-			ioMain.writeLine(String.format("Error during the application lauching: Server %s is not listening on port %d", HOST, PORT));
+			ioMain.writeLine(String.format("Error during the application launching: Server %s is not listening on port %d",
+					HOST, PORT));
 		}
-
+		
 	}
 
 }
