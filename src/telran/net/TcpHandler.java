@@ -13,9 +13,6 @@ public class TcpHandler implements Closeable {
 	
 
 	public TcpHandler(String host, int port) throws Exception {
-//		socket = new Socket(host, port);
-//		output = new ObjectOutputStream(socket.getOutputStream());
-//		input = new ObjectInputStream(socket.getInputStream());
 		this.host = host;
 		this.port = port;		
 		connect();
@@ -30,29 +27,29 @@ public class TcpHandler implements Closeable {
 		T res = null;
 		Request request = new Request(requestType, requestData);		
 		try {		
-			output.writeObject(request);
-			Response response = (Response)input.readObject();
-			if(response.code() != ResponseCode.OK) {
-				throw new RuntimeException(response.responseData().toString());
-			}
-		    res = (T) response.responseData();
+			res = getResponse(request);
 		    
 		} catch (SocketException e) {
 			connect();			
 			try {
-				output.writeObject(request);
-				Response response = (Response)input.readObject();
-			if(response.code() != ResponseCode.OK) {
-				throw new RuntimeException(response.responseData().toString());
-			}
-		    res = (T) response.responseData();
+				res = getResponse(request);
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		} catch (Exception e) {	
 			throw new RuntimeException(e.getMessage());				
 		}
+		return res;
+	}
+
+	private <T> T getResponse(Request request) throws IOException, ClassNotFoundException {
+		T res;
+		output.writeObject(request);
+		Response response = (Response)input.readObject();
+		if(response.code() != ResponseCode.OK) {
+			throw new RuntimeException(response.responseData().toString());
+		}
+		res = (T) response.responseData();
 		return res;
 	}
 	
