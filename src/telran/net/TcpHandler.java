@@ -26,22 +26,25 @@ public class TcpHandler implements Closeable {
 	public <T> T send(String requestType, Serializable requestData) {
 		T res = null;
 		Request request = new Request(requestType, requestData);		
-		try {		
-			res = getResponse(request);
-		    
-		} catch (SocketException e) {
-			connect();			
-			try {
-				res = getResponse(request);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+		boolean running = true;
+		while(running) {
+			running = false;
+			try {		
+			res = getResponse(request);		    
 		} catch (Exception e) {	
-			throw new RuntimeException(e.getMessage());				
+			if(e instanceof SocketException) {
+				running = true;
+				connect();
+			} else {
+			throw new RuntimeException(e.getMessage());	
+			}
+		}
 		}
 		return res;
+		
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getResponse(Request request) throws IOException, ClassNotFoundException {
 		T res;
 		output.writeObject(request);
