@@ -1,7 +1,10 @@
 package telran.employees;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.logging.ErrorManager;
 
 import telran.employees.dto.Employee;
 import telran.employees.dto.FromTo;
@@ -12,6 +15,7 @@ import telran.net.Request;
 import telran.net.Response;
 import telran.net.ResponseCode;
 
+@SuppressWarnings("unused")
 public class CompanyProtocol implements ApplProtocol {
 
 	private Company company;
@@ -25,26 +29,37 @@ public class CompanyProtocol implements ApplProtocol {
 		Response response = null;
 		String requestType = request.requestType();
 		Serializable data = request.requestData();
+
 		try {
-			Serializable responseData = switch(requestType) {
-			case "employee/add" -> employee_add(data);
-			case "employee/get" -> employee_get(data);
-			case "employees/get" -> employees_get(data);
-			case "employee/remove" -> employees_remove(data);
-			case "salary/update" -> employee_salary_update(data);
-			case "department/update" -> employee_department_update(data);
-			case "department/salary/distribution" -> department_salary_distribution(data);
-			case "salary/distribution" -> salary_distribution(data);
-			case "employees/department" -> employees_department(data);
-			case "employees/salary" -> employees_salary(data);
-			case "employees/age" -> employees_age(data);
-			// exclude save
-			    default -> new Response(ResponseCode.WRONG_TYPE, requestType + " is unsupported in the Company Protocol");
-			};
-			response = (responseData instanceof Response) ? (Response) responseData :
-						new Response(ResponseCode.OK, responseData);		
-			} catch (Exception e) {
-							
+			requestType = requestType.replace('/', '_');
+//			Serializable responseData = switch(requestType) {
+//			case "employee/add" -> employee_add(data);
+//			case "employee/get" -> employee_get(data);
+//			case "employees/get" -> employees_get(data);
+//			case "employee/remove" -> employees_remove(data);
+//			case "salary/update" -> salary_update(data);
+//			case "department/update" -> department_update(data);
+//			case "department/salary/distribution" -> department_salary_distribution(data);
+//			case "salary/distribution" -> salary_distribution(data);
+//			case "employees/department" -> employees_department(data);
+//			case "employees/salary" -> employees_salary(data);
+//			case "employees/age" -> employees_age(data);
+//			// exclude save
+//			    default -> new Response(ResponseCode.WRONG_TYPE, requestType + " is unsupported in the Company Protocol");
+//			};
+//			response = (responseData instanceof Response) ? (Response) responseData :
+//						new Response(ResponseCode.OK, responseData);		
+			Method method = this.getClass().getDeclaredMethod(requestType, Serializable.class);
+			Serializable responseData = (Serializable) method.invoke(this, data);
+			response = new Response(ResponseCode.OK, responseData);
+		} catch (NoSuchMethodException e) {
+			response = new Response(ResponseCode.WRONG_TYPE, requestType + " is unsupported in the Company Protocol");
+		} catch (InvocationTargetException e) {
+			Throwable ce = e.getCause();
+			String errorMessage = ce instanceof ClassCastException ? 
+					"Mismatchinge of received data type": ce.getMessage();
+			response = new Response(ResponseCode.WRONG_DATE, errorMessage);
+		} catch (Exception e) {
 			response = new Response(ResponseCode.WRONG_DATE, e.toString());
 		}
 		return response;
@@ -71,27 +86,27 @@ public class CompanyProtocol implements ApplProtocol {
 
 	private Serializable salary_distribution(Serializable data) {
 		int interval = (int) data;
-		
+
 		return new ArrayList<>(company.getSalaryDistribution(interval));
 	}
 
 	private Serializable department_salary_distribution(Serializable data) {
-		
+
 		return new ArrayList<>(company.getDepartmentSalaryDistribution());
 	}
 
-	private Serializable employee_department_update(Serializable data) {
+	private Serializable department_update(Serializable data) {
 		UpdateData idDepartment = (UpdateData) data;
 		long id = idDepartment.id();
 		String department = (String) idDepartment.data();
 		return company.updateDepartment(id, department);
 	}
 
-	private Serializable employee_salary_update(Serializable data) {
+	private Serializable salary_update(Serializable data) {
 		UpdateData idSalary = (UpdateData) data;
 		long id = idSalary.id();
 		int salary = (int) idSalary.data();
-		return company.updateSalary(id, salary );
+		return company.updateSalary(id, salary);
 	}
 
 	private Serializable employees_remove(Serializable data) {
@@ -100,11 +115,11 @@ public class CompanyProtocol implements ApplProtocol {
 	}
 
 	private Serializable employees_get(Serializable data) {
-		
+
 		return new ArrayList<>(company.getEmployees());
 	}
 
-	private Serializable  employee_get(Serializable data) {
+	private Serializable employee_get(Serializable data) {
 		long id = (long) data;
 		return company.getEmployee(id);
 	}
@@ -113,6 +128,5 @@ public class CompanyProtocol implements ApplProtocol {
 		Employee empl = (Employee) data;
 		return company.addEmployee(empl);
 	}
-	 
 
 }
