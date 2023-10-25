@@ -12,8 +12,8 @@ public class TCPServer implements Runnable {
 	private int port;
 	private ApplProtocol protocol;
 	private ServerSocket serverSocket;
-//  int nThreads = Runtime.getRuntime().availableProcessors();
-	int nThreads = 4;
+    int nThreads = Runtime.getRuntime().availableProcessors();
+//	int nThreads = 2;
 	private ExecutorService threadPool = Executors.newFixedThreadPool(nThreads);
 	boolean isShutdown = false;
 	AtomicInteger clientsCounter = new AtomicInteger(0);
